@@ -3864,7 +3864,7 @@ pub trait QueueWriteBuffer: Send + Sync {
     fn as_any(&self) -> &dyn Any;
 }
 
-pub trait BufferMappedRange: Debug {
+pub trait BufferMappedRange: Debug + Send + Sync {
     fn slice(&self) -> &[u8];
     fn slice_mut(&mut self) -> &mut [u8];
 }
