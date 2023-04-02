@@ -688,6 +688,7 @@ impl Drop for RenderBundle {
 /// It can be created with [`Device::create_query_set`].
 ///
 /// Corresponds to [WebGPU `GPUQuerySet`](https://gpuweb.github.io/gpuweb/#queryset).
+#[derive(Debug)]
 pub struct QuerySet {
     context: Arc<C>,
     id: ObjectId,
@@ -825,6 +826,37 @@ impl<V: Default> Default for Operations<V> {
         }
     }
 }
+
+/// Describes the location of a timestamp in a render pass.
+///
+/// For use with [`RenderPassTimestampWrite`].
+///
+/// Corresponds to [WebGPU `GPURenderPassTimestampLocation`](
+/// https://gpuweb.github.io/gpuweb/#enumdef-gpurenderpasstimestamplocation).
+#[derive(Clone, Debug)]
+pub enum RenderPassTimestampLocation {
+    /// The timestamp is at the start of the render pass.
+    Beginning,
+    /// The timestamp is at the end of the render pass.
+    End,
+}
+
+/// Describes the timestamp writes of a render pass.
+///
+/// For use with [`RenderPassDescriptor`].
+///
+/// Corresponds to [WebGPU `GPURenderPassTimestampWrite`](
+/// https://gpuweb.github.io/gpuweb/#dictdef-gpurenderpasstimestampwrite).
+#[derive(Clone, Debug)]
+pub struct RenderPassTimestampWrite<'a> {
+    /// The query set to write to.
+    pub query_set: &'a QuerySet,
+    /// The index of the query to write to.
+    pub query_index: u32,
+    /// The location of the timestamp.
+    pub location: RenderPassTimestampLocation,
+}
+static_assertions::assert_impl_all!(RenderPassTimestampWrite: Send, Sync);
 
 /// Describes a color attachment to a [`RenderPass`].
 ///
@@ -1083,6 +1115,8 @@ pub struct RenderPassDescriptor<'tex, 'desc> {
     pub color_attachments: &'desc [Option<RenderPassColorAttachment<'tex>>],
     /// The depth and stencil attachment of the render pass, if any.
     pub depth_stencil_attachment: Option<RenderPassDepthStencilAttachment<'tex>>,
+    /// A sequence of RenderPassTimestampWrite values define where and when timestamp values will be written for this pass.
+    pub timestamp_writes: &'desc [RenderPassTimestampWrite<'desc>],
 }
 static_assertions::assert_impl_all!(RenderPassDescriptor: Send, Sync);
 
@@ -1173,7 +1207,7 @@ static_assertions::assert_impl_all!(RenderPipelineDescriptor: Send, Sync);
 ///
 /// Corresponds to [WebGPU `GPUComputePassTimestampLocation`](
 /// https://gpuweb.github.io/gpuweb/#enumdef-gpucomputepasstimestamplocation).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ComputePassTimestampLocation {
     /// The timestamp is at the start of the compute pass.
     Beginning,
@@ -1187,7 +1221,7 @@ pub enum ComputePassTimestampLocation {
 ///
 /// Corresponds to [WebGPU `GPUComputePassTimestampWrite`](
 /// https://gpuweb.github.io/gpuweb/#dictdef-gpucomputepasstimestampwrite).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ComputePassTimestampWrite<'a> {
     /// The query set to write to.
     pub query_set: &'a QuerySet,
@@ -1204,7 +1238,7 @@ static_assertions::assert_impl_all!(ComputePassTimestampWrite: Send, Sync);
 ///
 /// Corresponds to [WebGPU `GPUComputePassDescriptor`](
 /// https://gpuweb.github.io/gpuweb/#dictdef-gpucomputepassdescriptor).
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct ComputePassDescriptor<'a> {
     /// Debug label of the compute pass. This will show up in graphics debuggers for easy identification.
     pub label: Label<'a>,

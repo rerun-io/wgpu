@@ -1900,6 +1900,24 @@ impl crate::Context for Context {
             }
         });
 
+        let timestamp_writes = desc
+            .timestamp_writes
+            .as_ref()
+            .iter()
+            .map(|t| wgc::command::RenderPassTimestampWrite {
+                query_set: t.query_set.id.into(),
+                query_index: t.query_index,
+                location: match t.location {
+                    crate::RenderPassTimestampLocation::Beginning => {
+                        wgc::command::RenderPassTimestampLocation::Beginning
+                    }
+                    crate::RenderPassTimestampLocation::End => {
+                        wgc::command::RenderPassTimestampLocation::End
+                    }
+                },
+            })
+            .collect::<Vec<_>>();
+
         (
             Unused,
             wgc::command::RenderPass::new(
@@ -1908,6 +1926,7 @@ impl crate::Context for Context {
                     label: desc.label.map(Borrowed),
                     color_attachments: Borrowed(&colors),
                     depth_stencil_attachment: depth_stencil.as_ref(),
+                    timestamp_writes: Borrowed(&timestamp_writes),
                 },
             ),
         )
