@@ -97,6 +97,13 @@ SamplerDescriptor {
 
 By @cwfitzgerald in [#3610](https://github.com/gfx-rs/wgpu/pull/3610).
 
+#### Pass timestamp queries
+
+Addition of `TimestampWrites` to compute and render passes to allow profiling.
+This brings us in line with the spec.
+
+By @FL33TW00D in [#3636](https://github.com/gfx-rs/wgpu/pull/3636).
+
 #### General
 
 - Change type of `mip_level_count` and `array_layer_count` (members of `TextureViewDescriptor` and `ImageSubresourceRange`) from `Option<NonZeroU32>` to `Option<u32>`. By @teoxoy in [#3445](https://github.com/gfx-rs/wgpu/pull/3445)
