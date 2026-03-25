@@ -2,6 +2,7 @@ use alloc::{
     borrow::ToOwned, format, string::String, string::ToString as _, sync::Arc, vec, vec::Vec,
 };
 use core::{cmp::max, convert::TryInto, num::NonZeroU32, ptr, sync::atomic::Ordering};
+use wgt::Extent3d;
 
 use arrayvec::ArrayVec;
 use glow::HasContext;
@@ -843,9 +844,11 @@ impl crate::Device for super::Device {
                             desc.size.depth_or_array_layers as i32,
                         )
                     } else if target == glow::TEXTURE_3D {
-                        let mut width = desc.size.width;
-                        let mut height = desc.size.width;
-                        let mut depth = desc.size.depth_or_array_layers;
+                        let Extent3d {
+                            mut width,
+                            mut height,
+                            depth_or_array_layers: mut depth,
+                        } = desc.size;
                         for i in 0..desc.mip_level_count {
                             gl.tex_image_3d(
                                 target,
@@ -864,8 +867,11 @@ impl crate::Device for super::Device {
                             depth = max(1, depth / 2);
                         }
                     } else {
-                        let mut width = desc.size.width;
-                        let mut height = desc.size.width;
+                        let Extent3d {
+                            mut width,
+                            mut height,
+                            depth_or_array_layers: depth,
+                        } = desc.size;
                         for i in 0..desc.mip_level_count {
                             gl.tex_image_3d(
                                 target,
@@ -910,8 +916,11 @@ impl crate::Device for super::Device {
                             desc.size.height as i32,
                         )
                     } else if target == glow::TEXTURE_CUBE_MAP {
-                        let mut width = desc.size.width;
-                        let mut height = desc.size.width;
+                        let Extent3d {
+                            mut width,
+                            mut height,
+                            depth_or_array_layers: mut depth,
+                        } = desc.size;
                         for i in 0..desc.mip_level_count {
                             for face in [
                                 glow::TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -937,8 +946,11 @@ impl crate::Device for super::Device {
                             height = max(1, height / 2);
                         }
                     } else {
-                        let mut width = desc.size.width;
-                        let mut height = desc.size.width;
+                        let Extent3d {
+                            mut width,
+                            mut height,
+                            depth_or_array_layers: mut depth,
+                        } = desc.size;
                         for i in 0..desc.mip_level_count {
                             gl.tex_image_2d(
                                 target,
